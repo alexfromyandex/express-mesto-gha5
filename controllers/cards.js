@@ -5,7 +5,7 @@ module.exports.getCards = async (req, res) => {
     const cards = await Card.find({});
     return res.status(200).send(cards);
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    return res.status(500).send({ message: error.message });
   }
 };
 
@@ -15,8 +15,7 @@ module.exports.createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
     const card = await Card.create({ name, link, owner: req.user._id });
-    res.status(201).json(card);
-    return (cardObject) => res.status(200).send({ data: cardObject });
+    return res.status(201).json(card);
   } catch (error) {
     switch (error.name) {
       case "ValidationError":
@@ -35,9 +34,9 @@ module.exports.deleteCard = async (req, res) => {
   try {
     const deletedCard = await Card.findByIdAndDelete(req.params.cardId);
     if (deletedCard) {
-      res.status(200).send({ message: "Карточка успешно удалена." });
+      return res.status(200).send({ message: "Карточка успешно удалена." });
     } else {
-      res.status(404).send({ message: "Карточка с указанным _id не найдена." });
+      return res.status(404).send({ message: "Карточка с указанным _id не найдена." });
     }
   } catch (error) {
     switch (error.name) {

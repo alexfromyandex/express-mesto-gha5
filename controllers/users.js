@@ -14,12 +14,14 @@ module.exports.getUsers = async (req, res) => {
 module.exports.getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId)
-      .select("-__v")
-      .orFail(() => {
-        throw new Error("Пользователь по указанному _id не найден.");
-      });
-    return res.status(200).json(user);
+    const user = await User.findById(userId).select("-__v");
+    if (user) {
+      return res.status(200).json(user);
+    } else {
+      return res
+        .status(404)
+        .send({ message: "Пользователь по указанному _id не найден." });
+    }
   } catch (error) {
     switch (error.name) {
       case "CastError":
@@ -44,13 +46,13 @@ module.exports.createUser = async (req, res) => {
         return res.status(400).send({
           message: "Переданы некорректные данные при создании пользователя.",
         });
-      case "MongoServerError":
+      /* case "MongoServerError":
         if (error.code === 11000) {
           return res.status(409).send({
             message: "Пользователь с таким именем уже существует.",
           });
         }
-        return res.status(500).send({ message: error.message });
+        return res.status(500).send({ message: error.message }); */
       default:
         return res.status(500).send({ message: error.message });
     }
@@ -102,7 +104,9 @@ module.exports.updateUserAvatar = (req, res) => {
           message: "Переданы некорректные данные при обновлении автара.",
         });
       } else {
-        return res.status(500).send({ message: `На сервере произошла ошибка: ${error}` });
+        return res
+          .status(500)
+          .send({ message: `На сервере произошла ошибка: ${error}` });
       }
     });
 };
