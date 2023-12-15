@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require('../models/user');
 const {
   OkStatus,
   CreatedStatus,
@@ -8,45 +8,40 @@ const {
   InternalServerStatus,
   NotImplementedStatus,
   MongoDuplicateCode,
-} = require("../utils/ErrorStatus");
+} = require('../utils/ErrorStatus');
 
 module.exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select("-__v");
+    const users = await User.find({}).select('-__v');
     return res.status(OkStatus).json(users);
   } catch (error) {
-    return res.status(InternalServerStatus).send({ message: error.message });
+    return res.status(InternalServerStatus).send({ message: 'Ошибка сервера' });
   }
 };
-
-//_____________________________________________________________________________________________________________________________________
 
 module.exports.getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId).select("-__v");
+    const user = await User.findById(userId).select('-__v');
     if (user) {
       return res.status(OkStatus).json(user);
-    } else {
-      return res
-        .status(NotFoundStatus)
-        .send({ message: "Пользователь по указанному _id не найден." });
     }
+    return res
+      .status(NotFoundStatus)
+      .send({ message: 'Пользователь по указанному _id не найден.' });
   } catch (error) {
     switch (error.name) {
-      case "CastError":
+      case 'CastError':
         return res
           .status(BadRequestStatus)
-          .send({ message: "Переданы некорректные данные пользователя" });
+          .send({ message: 'Переданы некорректные данные пользователя' });
       default:
         return res
           .status(InternalServerStatus)
-          .send({ message: error.message });
+          .send({ message: 'Ошибка сервера' });
     }
   }
 };
-
-//_____________________________________________________________________________________________________________________________________
 
 module.exports.createUser = async (req, res) => {
   try {
@@ -54,28 +49,26 @@ module.exports.createUser = async (req, res) => {
     return res.status(CreatedStatus).json(newUser);
   } catch (error) {
     switch (error.name) {
-      case "ValidationError":
+      case 'ValidationError':
         return res.status(BadRequestStatus).send({
-          message: "Переданы некорректные данные при создании пользователя.",
+          message: 'Переданы некорректные данные при создании пользователя.',
         });
-      case "MongoServerError":
+      case 'MongoServerError':
         if (error.code === MongoDuplicateCode) {
           return res.status(ConflictStatus).send({
-            message: "Пользователь с таким именем уже существует.",
+            message: 'Пользователь с таким именем уже существует.',
           });
         }
         return res
           .status(NotImplementedStatus)
-          .send({ message: error.message });
+          .send({ message: 'Ошибка сервера' });
       default:
         return res
           .status(InternalServerStatus)
-          .send({ message: error.message });
+          .send({ message: 'Ошибка сервера' });
     }
   }
 };
-
-//_____________________________________________________________________________________________________________________________________
 
 module.exports.updateUserData = async (req, res) => {
   try {
@@ -83,34 +76,31 @@ module.exports.updateUserData = async (req, res) => {
     const userUpdate = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     if (userUpdate) {
       return res.status(OkStatus).send(userUpdate);
-    } else {
-      return res.status(NotFoundStatus).send({
-        message: "Пользователь с указанным _id не найден.",
-      });
     }
+    return res.status(NotFoundStatus).send({
+      message: 'Пользователь с указанным _id не найден.',
+    });
   } catch (error) {
     switch (error.name) {
-      case "CastError":
+      case 'CastError':
         return res.status(BadRequestStatus).send({
-          message: "Неверно указанным _id пользователя.",
+          message: 'Неверно указанным _id пользователя.',
         });
-      case "ValidationError":
+      case 'ValidationError':
         return res.status(BadRequestStatus).send({
-          message: "Переданы некорректные данные при обновлении профиля.",
+          message: 'Переданы некорректные данные при обновлении профиля.',
         });
       default:
         return res
           .status(InternalServerStatus)
-          .send(`На сервере произошла ошибка: ${error}`);
+          .send({ message: 'Ошибка сервера' });
     }
   }
 };
-
-//_____________________________________________________________________________________________________________________________________
 
 module.exports.updateUserAvatar = async (req, res) => {
   try {
@@ -118,29 +108,28 @@ module.exports.updateUserAvatar = async (req, res) => {
     const avatarUpdate = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     if (avatarUpdate) {
       return res.status(OkStatus).json(avatarUpdate);
-    } else {
-      return res.status(NotFoundStatus).send({
-        message: "Пользователь с указанным _id не найден.",
-      });
     }
+    return res.status(NotFoundStatus).send({
+      message: 'Пользователь с указанным _id не найден.',
+    });
   } catch (error) {
     switch (error.name) {
-      case "CastError":
+      case 'CastError':
         return res.status(BadRequestStatus).send({
-          message: "Неверно указанным _id пользователя.",
+          message: 'Неверно указанным _id пользователя.',
         });
-      case "ValidationError":
+      case 'ValidationError':
         return res.status(BadRequestStatus).send({
-          message: "Переданы некорректные данные при обновлении профиля.",
+          message: 'Переданы некорректные данные при обновлении профиля.',
         });
       default:
         return res
           .status(InternalServerStatus)
-          .send(`На сервере произошла ошибка: ${error}`);
+          .send({ message: 'Ошибка сервера' });
     }
   }
 };
