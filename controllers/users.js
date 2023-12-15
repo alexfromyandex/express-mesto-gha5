@@ -1,19 +1,17 @@
 const User = require('../models/user');
 const {
-  OkStatus,
   CreatedStatus,
   BadRequestStatus,
   NotFoundStatus,
   ConflictStatus,
   InternalServerStatus,
-  NotImplementedStatus,
   MongoDuplicateCode,
 } = require('../utils/ErrorStatus');
 
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({}).select('-__v');
-    return res.status(OkStatus).json(users);
+    return res.json(users);
   } catch (error) {
     return res.status(InternalServerStatus).send({ message: 'Ошибка сервера' });
   }
@@ -24,7 +22,7 @@ module.exports.getUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId).select('-__v');
     if (user) {
-      return res.status(OkStatus).json(user);
+      return res.json(user);
     }
     return res
       .status(NotFoundStatus)
@@ -60,7 +58,7 @@ module.exports.createUser = async (req, res) => {
           });
         }
         return res
-          .status(NotImplementedStatus)
+          .status(InternalServerStatus)
           .send({ message: 'Ошибка сервера' });
       default:
         return res
@@ -79,7 +77,7 @@ module.exports.updateUserData = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (userUpdate) {
-      return res.status(OkStatus).send(userUpdate);
+      return res.send(userUpdate);
     }
     return res.status(NotFoundStatus).send({
       message: 'Пользователь с указанным _id не найден.',
@@ -111,7 +109,7 @@ module.exports.updateUserAvatar = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (avatarUpdate) {
-      return res.status(OkStatus).json(avatarUpdate);
+      return res.json(avatarUpdate);
     }
     return res.status(NotFoundStatus).send({
       message: 'Пользователь с указанным _id не найден.',

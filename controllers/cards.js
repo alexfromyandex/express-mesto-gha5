@@ -1,6 +1,5 @@
 const Card = require('../models/card');
 const {
-  OkStatus,
   CreatedStatus,
   BadRequestStatus,
   NotFoundStatus,
@@ -10,7 +9,7 @@ const {
 module.exports.getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
-    return res.status(OkStatus).send(cards);
+    return res.send(cards);
   } catch (error) {
     return res.status(InternalServerStatus).send({ message: 'Ошибка сервера' });
   }
@@ -39,9 +38,7 @@ module.exports.deleteCard = async (req, res) => {
   try {
     const deletedCard = await Card.findByIdAndDelete(req.params.cardId);
     if (deletedCard) {
-      return res
-        .status(OkStatus)
-        .send({ message: 'Карточка успешно удалена.' });
+      return res.send({ message: 'Карточка успешно удалена.' });
     }
     return res
       .status(NotFoundStatus)
@@ -68,7 +65,7 @@ module.exports.likeCard = async (req, res) => {
       { new: true },
     );
     if (card) {
-      return res.status(OkStatus).send({ message: 'Лайк добавлен' });
+      return res.send({ message: 'Лайк добавлен' });
     }
     return res
       .status(NotFoundStatus)
@@ -95,7 +92,7 @@ module.exports.dislikeCard = async (req, res) => {
       { new: true },
     );
     if (card) {
-      return res.status(OkStatus).send({ message: 'Лайк удален' });
+      return res.send({ message: 'Лайк удален' });
     }
     return res
       .status(NotFoundStatus)
