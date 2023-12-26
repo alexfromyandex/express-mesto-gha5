@@ -2,11 +2,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const { errors } = require('celebrate');
 
+const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
+const { loginUser, createUser } = require('./controllers/users');
+
+const {
+  createUserValidate,
+  loginValidate,
+} = require('./middlewares/validation');
+
+const NotFoundError = require('./errors/NotFoundError');
+
 const { PORT = 3000 } = process.env;
+
 const app = express();
 
 mongoose.connect('mongodb://127.0.0.1:27017/mydb');
@@ -23,18 +35,25 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '657c27858d06a03d6047806f',
-  };
-  next();
+app.post('/signin', loginValidate, loginUser);
+app.post('/signup', createUserValidate, createUser);
+
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
+
+app.use(errors());
+
+app.use(() => {
+  throw new NotFoundError('Неверно указан путь.');
 });
 
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use((err, req, res, next) => {
+  const { statusCode, message } = err;
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Неверно указан путь.' });
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
+  next();
 });
 
 app.listen(PORT);

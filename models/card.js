@@ -11,6 +11,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: { value: true, message: 'Поле является обязвтельным' },
+    validate: {
+      validator(v) {
+        return /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/gm.test(v);
+      },
+      message: 'Ошибка проверки url адреса',
+    },
   },
 
   owner: {
